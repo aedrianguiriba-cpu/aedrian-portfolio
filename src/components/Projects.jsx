@@ -52,7 +52,7 @@ export default function Projects() {
 
         <HudPanel className="mt-16 overflow-hidden p-6">
           <img
-            src={`https://ghchart.rshah.org/22c55e/${githubUsername}`}
+            src={`https://ghchart.rshah.org/3b82f6/${githubUsername}`}
             alt={`${profile.name}'s GitHub contribution graph`}
             className="w-full"
             loading="lazy"

@@ -1,13 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Pointer } from 'lucide-react'
+import { MousePointer2 } from 'lucide-react'
 
-const EASE = 0.18
 const HOVER_SELECTOR = 'a, button, input, textarea, [data-cursor-hover]'
 const RIPPLE_MS = 500
+const RING_SIZE = 34
 
 export default function CustomCursor() {
-  const dotRef = useRef(null)
-  const ringRef = useRef(null)
+  const cursorRef = useRef(null)
   const [enabled, setEnabled] = useState(false)
   const [hovering, setHovering] = useState(false)
   const [pressed, setPressed] = useState(false)
@@ -24,14 +23,9 @@ export default function CustomCursor() {
 
     document.documentElement.classList.add('custom-cursor-active')
 
-    const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
-    const ring = { x: mouse.x, y: mouse.y }
-
     const handleMove = (e) => {
-      mouse.x = e.clientX
-      mouse.y = e.clientY
-      if (dotRef.current) {
-        dotRef.current.style.transform = `translate(${mouse.x}px, ${mouse.y}px) translate(-50%, -50%)`
+      if (cursorRef.current) {
+        cursorRef.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`
       }
     }
 
@@ -54,24 +48,12 @@ export default function CustomCursor() {
     window.addEventListener('mousedown', handleDown)
     window.addEventListener('mouseup', handleUp)
 
-    let frame
-    const tick = () => {
-      ring.x += (mouse.x - ring.x) * EASE
-      ring.y += (mouse.y - ring.y) * EASE
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${ring.x}px, ${ring.y}px) translate(-50%, -50%)`
-      }
-      frame = requestAnimationFrame(tick)
-    }
-    frame = requestAnimationFrame(tick)
-
     return () => {
       document.documentElement.classList.remove('custom-cursor-active')
       window.removeEventListener('mousemove', handleMove)
       document.removeEventListener('mouseover', handleOver)
       window.removeEventListener('mousedown', handleDown)
       window.removeEventListener('mouseup', handleUp)
-      cancelAnimationFrame(frame)
     }
   }, [enabled])
 
@@ -80,38 +62,30 @@ export default function CustomCursor() {
   return (
     <>
       <div
-        ref={dotRef}
-        aria-hidden="true"
-        className={`pointer-events-none fixed left-0 top-0 z-[200] rounded-full transition-[width,height,background-color] duration-150 ease-out ${
-          pressed ? 'h-1 w-1 bg-foreground' : 'h-1.5 w-1.5 bg-accent'
-        }`}
-        style={{ transform: 'translate(-50%, -50%)' }}
-      />
-      <div
-        ref={ringRef}
+        ref={cursorRef}
         aria-hidden="true"
         className="pointer-events-none fixed left-0 top-0 z-[200]"
-        style={{ transform: 'translate(-50%, -50%)' }}
       >
-        <div
-          className={`flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border transition-all duration-200 ease-out ${
-            hovering ? 'h-12 w-12' : 'h-8 w-8'
-          } ${
-            pressed
-              ? 'scale-75 border-accent bg-accent'
-              : hovering
-                ? 'border-accent bg-accent/10'
-                : 'border-accent/50 bg-transparent'
-          }`}
-        >
-          {hovering && (
-            <Pointer
-              size={16}
-              strokeWidth={2.25}
-              className={pressed ? 'text-[#06160d]' : 'text-accent'}
-            />
-          )}
-        </div>
+        {hovering ? (
+          <div
+            className={`relative flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 transition-all duration-150 ease-out ${
+              pressed ? 'scale-75 border-white bg-white/10' : 'border-accent bg-accent/10'
+            }`}
+            style={{ width: RING_SIZE, height: RING_SIZE }}
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${pressed ? 'bg-white' : 'bg-accent'}`} />
+          </div>
+        ) : (
+          <MousePointer2
+            size={24}
+            className={`-translate-x-[6px] -translate-y-[3px] transition-all duration-150 ease-out ${
+              pressed ? 'scale-90' : 'scale-100'
+            }`}
+            fill={pressed ? '#ffffff' : 'var(--color-accent)'}
+            stroke="#06160d"
+            strokeWidth={1.5}
+          />
+        )}
       </div>
 
       {ripples.map((ripple) => (

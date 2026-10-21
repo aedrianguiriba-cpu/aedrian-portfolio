@@ -117,18 +117,6 @@ export default function CommandPalette() {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="fixed bottom-6 right-6 z-40 hidden items-center gap-2 border border-border bg-surface/80 px-4 py-2.5 font-mono text-xs text-muted shadow-lg shadow-black/20 backdrop-blur-md transition-colors duration-200 hover:border-accent/50 hover:text-foreground md:inline-flex cursor-pointer"
-      >
-        <Search size={14} />
-        Jump to…
-        <span className="ml-1 rounded border border-border bg-background/60 px-1.5 py-0.5 text-[10px] text-muted">
-          ⌘K
-        </span>
-      </button>
-
       {open && (
         <div className="fixed inset-0 z-[100] flex items-start justify-center px-4 pt-[15vh]">
           <div

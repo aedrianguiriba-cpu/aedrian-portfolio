@@ -7,7 +7,7 @@ export const profile = {
   phone: '+639757436621',
   github: 'https://github.com/aedrianguiriba-cpu',
   githubUsername: 'aedrianguiriba-cpu',
-  linkedin: 'https://linkedin.com/',
+  linkedin: 'https://www.linkedin.com/in/aedrian-guiriba-2106571ba/',
   resumeUrl: '/resume.pdf',
 }
 

@@ -1,6 +1,7 @@
 import CommandPalette from './components/CommandPalette'
 import CursorGlow from './components/CursorGlow'
 import CustomCursor from './components/CustomCursor'
+import StarField from './components/StarField'
 import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import About from './components/About'
@@ -14,6 +15,7 @@ import Footer from './components/Footer'
 export default function App() {
   return (
     <div className="min-h-dvh bg-background text-foreground">
+      <StarField />
       <CursorGlow />
       <CustomCursor />
       <a

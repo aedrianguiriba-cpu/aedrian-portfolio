@@ -131,6 +131,26 @@ export default function Navbar() {
     window.addEventListener('mousemove', handleMove)
     document.addEventListener('mouseout', handleLeave)
 
+    // Each pill's transform-origin is 'top center', so rotate/scaleY never move
+    // that point — only translateY does. Measuring layout is only needed once
+    // (and on resize), not every frame, which avoids forcing a layout flush
+    // on every item on every animation frame.
+    let asideBase = { left: 0, top: 0 }
+    let itemBases = []
+    const measure = () => {
+      const asideEl = asideRef.current
+      if (!asideEl) return
+      const asideRect = asideEl.getBoundingClientRect()
+      asideBase = { left: asideRect.left, top: asideRect.top }
+      itemBases = itemRefs.current.map((el) => {
+        if (!el) return null
+        const rect = el.getBoundingClientRect()
+        return { x: rect.left + rect.width / 2, y: rect.top }
+      })
+    }
+    measure()
+    window.addEventListener('resize', measure)
+
     let frame
     const tick = (now) => {
       const dt = lastTimeRef.current ? Math.min((now - lastTimeRef.current) / 1000, 0.05) : 0.016
@@ -138,63 +158,61 @@ export default function Navbar() {
       if (mountTimeRef.current === null) mountTimeRef.current = now
       const elapsed = (now - mountTimeRef.current) / 1000
 
-      const asideEl = asideRef.current
-      if (asideEl) {
-        const asideRect = asideEl.getBoundingClientRect()
-        const points = []
+      const points = []
 
-        itemRefs.current.forEach((el, i) => {
-          if (!el) return
-          const rect = el.getBoundingClientRect()
-          const pivotX = rect.left + rect.width / 2
-          const pivotY = rect.top
-          const dx = mouse.x - pivotX
-          const dy = mouse.y - pivotY
-          const dist = Math.hypot(dx, dy)
-          const falloff = dist < INTERACT_RADIUS ? 1 - dist / INTERACT_RADIUS : 0
+      itemRefs.current.forEach((el, i) => {
+        if (!el) return
+        const base = itemBases[i]
+        if (!base) return
 
-          const phys = physicsRef.current[i]
-          let targetDeg = Math.sin(now * 0.001 * phys.speed + phys.phase) * IDLE_AMPLITUDE_DEG
-          if (falloff > 0) {
-            const lean = Math.max(-1, Math.min(1, -dx / INTERACT_RADIUS))
-            targetDeg = lean * MAX_LEAN_DEG * falloff
-          }
+        const phys = physicsRef.current[i]
+        const pivotX = base.x
+        const pivotY = base.y + phys.y
+        const dx = mouse.x - pivotX
+        const dy = mouse.y - pivotY
+        const dist = Math.hypot(dx, dy)
+        const falloff = dist < INTERACT_RADIUS ? 1 - dist / INTERACT_RADIUS : 0
 
-          const targetRad = (targetDeg * Math.PI) / 180
-          const angularAccel = STIFFNESS * (targetRad - phys.angle) - DAMPING * phys.velocity
-          phys.velocity += angularAccel * dt
-          phys.angle += phys.velocity * dt
-
-          if (elapsed >= phys.dropDelay) {
-            const targetY = falloff * PULL_DOWN_MAX
-            const verticalAccel = VERTICAL_STIFFNESS * (targetY - phys.y) - VERTICAL_DAMPING * phys.yVelocity
-            phys.yVelocity += verticalAccel * dt
-            phys.y += phys.yVelocity * dt
-          }
-
-          const stretch =
-            1 +
-            Math.min(
-              Math.abs(phys.velocity) * STRETCH_PER_RAD_S + Math.abs(phys.yVelocity) * STRETCH_PER_PX_S,
-              MAX_STRETCH
-            )
-          el.style.transform = `translateY(${phys.y.toFixed(1)}px) rotate(${(phys.angle * 180) / Math.PI}deg) scaleY(${stretch.toFixed(3)})`
-
-          const localX = pivotX - asideRect.left
-          const localY = pivotY - asideRect.top
-          points.push([localX, localY])
-
-          const knot = knotRefs.current[i]
-          if (knot) {
-            knot.setAttribute('cx', localX.toFixed(1))
-            knot.setAttribute('cy', localY.toFixed(1))
-          }
-        })
-
-        if (pathRef.current && points.length > 1) {
-          const mouseLocal = { x: mouse.x - asideRect.left, y: mouse.y - asideRect.top }
-          pathRef.current.setAttribute('d', smoothRopePath(pluckRopePoints(points, mouseLocal)))
+        let targetDeg = Math.sin(now * 0.001 * phys.speed + phys.phase) * IDLE_AMPLITUDE_DEG
+        if (falloff > 0) {
+          const lean = Math.max(-1, Math.min(1, -dx / INTERACT_RADIUS))
+          targetDeg = lean * MAX_LEAN_DEG * falloff
         }
+
+        const targetRad = (targetDeg * Math.PI) / 180
+        const angularAccel = STIFFNESS * (targetRad - phys.angle) - DAMPING * phys.velocity
+        phys.velocity += angularAccel * dt
+        phys.angle += phys.velocity * dt
+
+        if (elapsed >= phys.dropDelay) {
+          const targetY = falloff * PULL_DOWN_MAX
+          const verticalAccel = VERTICAL_STIFFNESS * (targetY - phys.y) - VERTICAL_DAMPING * phys.yVelocity
+          phys.yVelocity += verticalAccel * dt
+          phys.y += phys.yVelocity * dt
+        }
+
+        const stretch =
+          1 +
+          Math.min(
+            Math.abs(phys.velocity) * STRETCH_PER_RAD_S + Math.abs(phys.yVelocity) * STRETCH_PER_PX_S,
+            MAX_STRETCH
+          )
+        el.style.transform = `translateY(${phys.y.toFixed(1)}px) rotate(${(phys.angle * 180) / Math.PI}deg) scaleY(${stretch.toFixed(3)})`
+
+        const localX = pivotX - asideBase.left
+        const localY = pivotY - asideBase.top
+        points.push([localX, localY])
+
+        const knot = knotRefs.current[i]
+        if (knot) {
+          knot.setAttribute('cx', localX.toFixed(1))
+          knot.setAttribute('cy', localY.toFixed(1))
+        }
+      })
+
+      if (pathRef.current && points.length > 1) {
+        const mouseLocal = { x: mouse.x - asideBase.left, y: mouse.y - asideBase.top }
+        pathRef.current.setAttribute('d', smoothRopePath(pluckRopePoints(points, mouseLocal)))
       }
       frame = requestAnimationFrame(tick)
     }
@@ -203,6 +221,7 @@ export default function Navbar() {
     return () => {
       window.removeEventListener('mousemove', handleMove)
       document.removeEventListener('mouseout', handleLeave)
+      window.removeEventListener('resize', measure)
       cancelAnimationFrame(frame)
     }
   }, [])
@@ -257,16 +276,17 @@ export default function Navbar() {
           <nav className="relative flex flex-col items-end gap-3">
             <div
               ref={setItemRef(0)}
+              className="will-change-transform"
               style={{ transformOrigin: 'top center' }}
             >
               <a
                 href="#home"
                 onClick={(e) => handleNavClick(e, '#home')}
                 aria-current={active === '#home' ? 'true' : undefined}
-                className={`block whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold tracking-tight shadow-lg backdrop-blur-md transition-colors duration-200 ${
+                className={`block whitespace-nowrap rounded-full border px-4 py-2 text-sm font-semibold tracking-tight shadow-lg transition-colors duration-200 ${
                   active === '#home'
                     ? 'border-accent bg-accent text-[#06160d] shadow-accent/30'
-                    : 'border-border bg-surface/70 text-foreground shadow-black/20'
+                    : 'border-border bg-surface/90 text-foreground shadow-black/20'
                 }`}
               >
                 Aedrian<span className={active === '#home' ? '' : 'text-accent'}>.</span>dev
@@ -280,16 +300,17 @@ export default function Navbar() {
                   <li
                     key={item.href}
                     ref={setItemRef(i + 1)}
+                    className="will-change-transform"
                     style={{ transformOrigin: 'top center' }}
                   >
                     <a
                       href={item.href}
                       onClick={(e) => handleNavClick(e, item.href)}
                       aria-current={isActive ? 'true' : undefined}
-                      className={`block whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer backdrop-blur-md ${
+                      className={`block whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-colors duration-200 cursor-pointer ${
                         isActive
                           ? 'border-accent bg-accent text-[#06160d] shadow-lg shadow-accent/30'
-                          : 'border-border bg-surface/70 text-muted shadow-lg shadow-black/20 hover:text-foreground hover:border-accent/50'
+                          : 'border-border bg-surface/90 text-muted shadow-lg shadow-black/20 hover:text-foreground hover:border-accent/50'
                       }`}
                     >
                       {item.label}

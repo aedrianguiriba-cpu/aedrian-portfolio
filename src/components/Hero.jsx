@@ -1,7 +1,6 @@
 import { ArrowDown, ArrowUpRight, MapPin } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './icons'
 import Parallax from './Parallax'
-import Robot from './Robot'
 import { profile, stats } from '../data'
 
 const roles = profile.role.split('|').map((role) => role.trim())
@@ -21,7 +20,7 @@ export default function Hero() {
         className="pointer-events-none absolute -top-32 left-1/2 h-96 w-[36rem] -translate-x-1/2 rounded-full bg-accent/20 blur-[120px]"
       />
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-12 lg:grid-cols-[1fr_auto] lg:items-center">
+      <div className="relative mx-auto w-full max-w-6xl">
         <div>
           <div className="flex flex-wrap items-center gap-3">
             <p className="inline-flex items-center gap-2 rounded-full border border-border bg-surface/60 px-4 py-1.5 text-sm text-muted">
@@ -63,12 +62,6 @@ export default function Hero() {
               View my experience
               <ArrowUpRight size={18} />
             </a>
-            <a
-              href={`mailto:${profile.email}`}
-              className="inline-flex items-center gap-2 rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground hover:border-accent hover:text-accent transition-colors duration-200 cursor-pointer"
-            >
-              Get in touch
-            </a>
             <div className="flex items-center gap-2 pl-1">
               <a
                 href={profile.github}
@@ -101,8 +94,6 @@ export default function Hero() {
             ))}
           </dl>
         </div>
-
-        <Robot className="hidden justify-self-end lg:block" />
       </div>
 
       <a
