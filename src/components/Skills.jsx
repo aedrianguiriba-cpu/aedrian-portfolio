@@ -279,53 +279,66 @@ export default function Skills() {
         />
 
         <div className="mt-16 hidden lg:block lg:max-w-md">
-          <div className="relative border border-border bg-surface/60 p-6">
+          <div className="relative border border-border bg-surface/60 p-7">
             <div className="absolute -left-px -top-px h-3 w-3 border-l border-t border-accent/60" />
             <div className="absolute -right-px -bottom-px h-3 w-3 border-b border-r border-accent/60" />
             <div className="absolute inset-x-0 top-0 h-px bg-accent/40" />
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-4">
               <p className="flex items-center gap-2 font-mono text-xs uppercase tracking-wide text-muted">
                 <span className="hud-blink h-1.5 w-1.5 rounded-full bg-accent" />
                 {active ? active.group : 'Skill spotlight'}
               </p>
               {active && (
-                <p className="font-mono text-xs tabular-nums text-muted">
+                <p className="font-mono text-xs tabular-nums text-accent">
                   {String(selected + 1).padStart(2, '0')} / {String(skills.length).padStart(2, '0')}
                 </p>
               )}
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
+            <div className="mt-3 h-px w-full bg-border">
+              <div
+                className="h-px bg-accent transition-all duration-300 ease-out"
+                style={{ width: active ? `${((selected + 1) / skills.length) * 100}%` : '0%' }}
+              />
+            </div>
+
+            <div className="mt-5 flex items-center gap-4">
               <div
                 ref={destRef}
-                className="flex h-10 w-10 shrink-0 items-center justify-center border border-border bg-background/60"
+                className={`flex h-14 w-14 shrink-0 items-center justify-center border bg-background/60 transition-colors duration-300 ${
+                  active ? 'border-accent/60' : 'border-border'
+                }`}
               >
-                {active && !flight && <SkillLogo name={active.name} size={32} />}
+                {active && !flight ? (
+                  <SkillLogo name={active.name} size={34} />
+                ) : (
+                  <span className="h-6 w-6 rounded-full border border-dashed border-border" />
+                )}
               </div>
-              <h3 className="text-2xl font-bold text-foreground">
+              <h3 className="text-2xl font-bold leading-tight text-foreground">
                 {active ? active.name : 'Explore the stack'}
               </h3>
             </div>
 
-            <p className="mt-3 text-sm leading-relaxed text-muted">
+            <p className="mt-4 min-h-[2.5rem] text-sm leading-relaxed text-muted">
               {active ? active.description : 'Hover any icon in the wheel to bring it into view.'}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-2 border-t border-border pt-5">
+            <div className="mt-6 grid grid-cols-3 gap-2 border-t border-border pt-5">
               {skillGroups.map((group) => {
                 const GroupIcon = GROUP_ICONS[group.title]
                 const isActiveGroup = active?.group === group.title
                 return (
                   <span
                     key={group.title}
-                    className={`inline-flex items-center gap-1.5 border px-3 py-1.5 font-mono text-xs uppercase tracking-wide transition-colors duration-200 ${
+                    className={`flex items-center justify-center gap-1.5 border px-2 py-2 text-center font-mono text-[11px] uppercase leading-tight tracking-wide transition-colors duration-200 ${
                       isActiveGroup
                         ? 'border-accent bg-accent-soft text-accent'
                         : 'border-border text-muted'
                     }`}
                   >
-                    {GroupIcon && <GroupIcon size={13} />}
+                    {GroupIcon && <GroupIcon size={12} className="shrink-0" />}
                     {group.title}
                   </span>
                 )

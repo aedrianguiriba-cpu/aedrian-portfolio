@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function Parallax({ speed = 0.2, className = '', children }) {
+export default function Parallax({ speed = 0.2, className = '', ariaHidden = true, children }) {
   const ref = useRef(null)
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export default function Parallax({ speed = 0.2, className = '', children }) {
   }, [speed])
 
   return (
-    <div ref={ref} className={className} aria-hidden="true">
+    <div ref={ref} className={className} aria-hidden={ariaHidden || undefined}>
       {children}
     </div>
   )
