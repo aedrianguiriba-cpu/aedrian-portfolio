@@ -4,7 +4,7 @@ import { education } from '../data'
 
 export default function Education() {
   return (
-    <section id="education" className="relative scroll-mt-16 overflow-hidden px-6 py-24">
+    <section id="education" className="relative scroll-mt-24 overflow-hidden px-6 py-16 sm:py-24">
       <Parallax
         speed={0.15}
         className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-accent/10 blur-[100px]"

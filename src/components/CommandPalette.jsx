@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ArrowUpRight, Mail, Search } from 'lucide-react'
+import { ArrowUpRight, Search } from 'lucide-react'
 import { GithubIcon, LinkedinIcon } from './icons'
 import { nav, profile } from '../data'
 
@@ -15,13 +15,6 @@ function buildCommands() {
   ]
 
   const actionCommands = [
-    {
-      id: 'email',
-      label: `Email ${profile.name.split(' ')[0]}`,
-      hint: profile.email,
-      icon: Mail,
-      action: { type: 'link', href: `mailto:${profile.email}` },
-    },
     {
       id: 'github',
       label: 'Open GitHub profile',

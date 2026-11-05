@@ -21,11 +21,32 @@ export default function Projects() {
       .then((data) => {
         if (cancelled) return
         const sorted = data
-          .filter((repo) => !repo.fork && repo.name.toLowerCase() !== 'portfolio')
+          .filter((repo) => !repo.fork && !repo.name.toLowerCase().includes('portfolio'))
           .sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at))
           .slice(0, REPO_COUNT)
         setRepos(sorted)
         setStatus('loaded')
+
+        Promise.allSettled(
+          sorted.map((repo) =>
+            fetch(`https://api.github.com/repos/${githubUsername}/${repo.name}/languages`).then((res) =>
+              res.ok ? res.json() : Promise.reject(res.status)
+            )
+          )
+        ).then((results) => {
+          if (cancelled) return
+          setRepos((current) =>
+            current.map((repo, i) => {
+              const result = results[i]
+              if (result.status !== 'fulfilled') return repo
+              const languages = Object.entries(result.value)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3)
+                .map(([name]) => name)
+              return languages.length ? { ...repo, languages } : repo
+            })
+          )
+        })
       })
       .catch(() => {
         if (!cancelled) setStatus('error')
@@ -37,7 +58,7 @@ export default function Projects() {
   }, [githubUsername])
 
   return (
-    <section id="projects" className="relative scroll-mt-16 overflow-hidden px-6 py-24">
+    <section id="projects" className="relative scroll-mt-24 overflow-hidden px-6 py-16 sm:py-24">
       <Parallax
         speed={0.15}
         className="pointer-events-none absolute -right-24 top-10 h-72 w-72 rounded-full bg-accent/10 blur-[100px]"
@@ -80,13 +101,13 @@ export default function Projects() {
                 <p className="mt-2 text-sm leading-relaxed text-muted">
                   {repo.description || 'No description provided.'}
                 </p>
-                <div className="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted">
-                  {repo.language && (
-                    <span className="inline-flex items-center gap-1.5">
+                <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted">
+                  {(repo.languages ?? (repo.language ? [repo.language] : [])).map((lang) => (
+                    <span key={lang} className="inline-flex items-center gap-1.5">
                       <span className="h-2 w-2 rounded-full bg-accent" />
-                      {repo.language}
+                      {lang}
                     </span>
-                  )}
+                  ))}
                   <span className="inline-flex items-center gap-1">
                     <Star size={13} />
                     {repo.stargazers_count}
@@ -99,7 +120,7 @@ export default function Projects() {
 
         {status === 'error' && (
           <p className="mt-6 text-sm text-muted">
-            Couldn't load repositories right now — check them out directly on GitHub below.
+            Couldn't load repositories right now. Check them out directly on GitHub below.
           </p>
         )}
 

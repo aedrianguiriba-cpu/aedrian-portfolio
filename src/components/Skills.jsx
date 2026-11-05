@@ -139,7 +139,7 @@ export default function Skills() {
   const active = selected !== null ? skills[selected] : null
 
   return (
-    <section id="skills" className="relative scroll-mt-16 overflow-hidden px-6 py-24 lg:flex lg:min-h-[860px] lg:flex-col lg:justify-center">
+    <section id="skills" className="relative scroll-mt-24 overflow-hidden px-6 py-16 sm:py-24 lg:flex lg:min-h-[860px] lg:flex-col lg:justify-center">
       <Parallax
         speed={0.18}
         className="pointer-events-none absolute -left-24 bottom-0 h-72 w-72 rounded-full bg-accent/10 blur-[100px]"

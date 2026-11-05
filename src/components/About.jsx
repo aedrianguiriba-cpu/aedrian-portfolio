@@ -23,7 +23,7 @@ const points = [
 
 export default function About() {
   return (
-    <section id="about" className="relative scroll-mt-16 overflow-hidden px-6 py-24">
+    <section id="about" className="relative scroll-mt-24 overflow-hidden px-6 py-16 sm:py-24">
       <Parallax
         speed={0.15}
         className="pointer-events-none absolute -right-24 top-0 h-72 w-72 rounded-full bg-accent/10 blur-[100px]"
@@ -33,7 +33,7 @@ export default function About() {
         <SectionHeading
           eyebrow="About me"
           title="Turning ideas into reliable software"
-          description="I'm a versatile IT professional who moves fluidly between software development, graphic design, and teaching — bringing a well-rounded perspective to every project I take on."
+          description="I'm a versatile IT professional who moves fluidly between software development, graphic design, and teaching, bringing a well-rounded perspective to every project I take on."
         />
 
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
