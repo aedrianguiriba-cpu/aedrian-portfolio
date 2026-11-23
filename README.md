@@ -2,6 +2,37 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or later recommended)
+- npm (comes bundled with Node.js)
+
+### Installation
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+### Running the project
+
+Start the local development server with hot module reloading:
+
+```bash
+npm run dev
+```
+
+Vite will print a local URL (typically `http://localhost:5173`) — open it in your browser.
+
+### Other scripts
+
+- `npm run build` — create a production build in `dist/`
+- `npm run preview` — serve the production build locally to verify it before deploying
+- `npm run lint` — run Oxlint against the codebase
+
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
